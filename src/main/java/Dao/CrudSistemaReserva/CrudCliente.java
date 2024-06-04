@@ -43,20 +43,30 @@ public class CrudCliente implements ClienteDao {
 
 
     @Override
-    public List<Cliente> buscarTodos() {
+    public List<Cliente> buscarTodos() throws NoResultException, NonUniqueResultException, SQLException {
         EntityManager entityManager = Hibernate.getEntityManager();
-        List<Cliente> clientes = new ArrayList<>();
         try {
-            Query query = entityManager.createQuery("SELECT c FROM Cliente c", Cliente.class);
-            clientes = query.getResultList();
-            for (Cliente cliente : clientes) {
-                System.out.printf("ID DO CLIENTE: %d, NOME DO CLIENTE: %s, TELEFONE: %s%n", cliente.getId_cliente(), cliente.getNome(), cliente.getTelefone());
+            System.out.println("QUANTOS VOCÊ DESEJA VER??");
+            int quantidade = scanner.nextInt();
+            scanner.nextLine();
+
+            Query query = entityManager.createQuery("SELECT p FROM Cliente p", Cliente.class);
+            query.setMaxResults(quantidade);
+            List<Cliente> resultados = query.getResultList();
+            if (resultados.isEmpty()) {
+                System.out.println("NENHUM CLIENTE ENCONTRADO!!");
+                return new ArrayList<>();
+            } else {
+                for (Cliente cliente : resultados) {
+                    System.out.printf("ID DO CLIENTE: %d, NOME DO CLIENTE: %s, TELEFONE: %s%n", cliente.getId_cliente(), cliente.getNome(), cliente.getTelefone());
+                }
+                return resultados;
             }
         } finally {
             entityManager.close();
         }
-        return clientes;
     }
+
 
     @Override
     public void inserir(Cliente cliente) throws SQLException {
